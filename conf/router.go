@@ -1,13 +1,14 @@
 package conf
 
-import "github.com/gin-gonic/gin"
+import (
+	"Dorm/api"
+
+	"github.com/gin-gonic/gin"
+)
 
 func routerInit() *gin.Engine {
 	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	router.GET("/ping", api.Ping)
+	router.GET("/dorm/remain", api.RemainDorm)
 	return router
 }

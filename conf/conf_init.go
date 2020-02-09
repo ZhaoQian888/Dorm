@@ -5,8 +5,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Start 初始化所有组间 并返回gin.Engine实例
-func Start() *gin.Engine {
+// Init 初始化所有组间 并返回gin.Engine实例
+func Init() *gin.Engine {
 	godotenv.Load()
 	db()
 	redis()

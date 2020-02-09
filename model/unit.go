@@ -15,7 +15,7 @@ type UnitNum struct {
 	Num uint64
 }
 
-// FindAllUnit 返回所有的单元的名称的一个切片。
+// FindAllUnit 返回所有的单元的信息的一个切片。
 func FindAllUnit() ([]UnitNum, error) {
 	var units []Unit
 	var res []UnitNum

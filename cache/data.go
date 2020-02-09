@@ -3,49 +3,62 @@ package cache
 import (
 	"Dorm/model"
 	"strconv"
+
+	"github.com/garyburd/redigo/redis"
 )
 
-// Init 初始化所有cache操作
-func Init() {
-	redisPoolInit()
-	cacheInit()
+var depart = []string{"5B", "8F", "9D", "13E", "14A"}
+var gender = []uint8{0, 1}
+var size = []uint8{2, 3, 4, 5}
+var dmap = map[string]int{
+	depart[0]: 0,
+	depart[1]: 1,
+	depart[2]: 2,
+	depart[3]: 3,
+	depart[4]: 4,
+}
+var smap = map[uint8]int{
+	size[0]: 0,
+	size[1]: 1,
+	size[2]: 2,
 }
 
 // CacheInit 将数据库中的数据缓存到redis中
 func cacheInit() error {
-	departCache()
-	unitCache()
-	dormCache()
+	bedCache()
 	return nil
 }
 
-// departCache 用来将所有的宿舍楼的床位个数映射到redis中
-func departCache() {
+func bedCache() {
 	c := REDISPOOL.Get()
-	depart := []int{5, 8, 9, 13, 14}
-	for i := 0; i < 5; i++ {
-		departbednumber, err := model.GetDepartBedNumber(depart[i])
-		if err != nil {
-			panic(err)
+	for i := 0; i < len(depart); i++ {
+		for j := 0; j < len(gender); j++ {
+			for n := 0; n < len(size); n++ {
+				beds, _ := model.FindAllBed(depart[i], gender[j], size[n])
+				c.Do("set", "D_"+depart[i]+"G_"+strconv.Itoa(int(gender[j]))+"S_"+strconv.Itoa(int(size[n])), len(beds))
+				for m := 0; m < len(beds); m++ {
+					c.Do("set", "D_"+depart[i]+"G_"+strconv.Itoa(int(gender[j]))+"S_"+strconv.Itoa(int(size[n]))+strconv.Itoa(m), beds[m].BedNumber)
+					c.Do("set", beds[m].BedNumber, 1)
+					c.Do("sadd", "beds", beds[m].BedNumber)
+				}
+			}
 		}
-		c.Do("set", "depart"+strconv.Itoa(depart[i]), departbednumber)
 	}
 }
 
-// unitCache 用来将当前所有的单元楼的床位个数映射到redis中
-func unitCache() {
+// Push 将redis中数据缓冲至mysql
+func Push() error {
 	c := REDISPOOL.Get()
-	unit, _ := model.FindAllUnit()
-	for i := 0; i < len(unit); i++ {
-		c.Do("set", "unit"+unit[i].UID, unit[i].Num)
+	beds, _ := redis.StringMap(c.Do("SMEMBERS", "beds"))
+	var info []model.PushInfo
+	var student uint64
+	for i := 0; i < len(beds); i++ {
+		student, _ = redis.Uint64(c.Do("get", beds[strconv.Itoa(i)]))
+		info = append(info, model.PushInfo{
+			BedNumber: beds[strconv.Itoa(i)],
+			StuNumber: student,
+		})
 	}
-}
-
-// dormCache
-func dormCache() {
-	c := REDISPOOL.Get()
-	dorm, _ := model.FindAllDorm()
-	for i := 0; i < len(dorm); i++ {
-		c.Do("set", "dorm"+dorm[i].DormNumber, dorm[i].Num)
-	}
+	err := model.PushMysql(info)
+	return err
 }

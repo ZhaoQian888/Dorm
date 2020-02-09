@@ -22,3 +22,9 @@ func redisPoolInit() {
 	REDISPOOL = pool
 	REDISPOOL.Get()
 }
+
+// Init 初始化所有cache操作
+func Init() {
+	redisPoolInit()
+	cacheInit()
+}

@@ -19,32 +19,63 @@ type Dorm struct {
 	Info string
 }
 
-// DormNum 传递宿舍剩余床位信息
-type DormNum struct {
-	DormNumber string
-	Num        uint8
-}
+// // DormNum 传递宿舍剩余床位信息
+// type DormNum struct {
+// 	DormNumber string
+// 	Num        uint8
+// }
 
-// FindAllDorm 返回宿舍剩余床位信息
-func FindAllDorm() ([]DormNum, error) {
-	var dorms []Dorm
-	var dormnums []DormNum
-	var beds []Bed
-	var c uint8
-	err := MYSQL.Find(&dorms).Error
-	if err != nil {
-		return dormnums, err
-	}
-	for i := 0; i < len(dorms); i++ {
-		err = MYSQL.Joins("JOIN dorms on dorms.dorm_number=beds.dorm_refer").
-			Where("dorms.dorm_number=?", dorms[i]).
-			Find(&beds).
-			Count(&beds).
-			Error
-		dormnums = append(dormnums, DormNum{
-			DormNumber: dorms[i].DormNumber,
-			Num:        c,
-		})
-	}
-	return dormnums, err
+// // FindAllMDorm 返回男生宿舍剩余床位信息
+// func FindAllMDorm(cap int) ([]DormNum, error) {
+// 	var dorms []Dorm
+// 	var dormnums []DormNum
+// 	var beds []Bed
+// 	var c uint8
+// 	err := MYSQL.Find(&dorms).Error
+// 	if err != nil {
+// 		return dormnums, err
+// 	}
+// 	for i := 0; i < len(dorms); i++ {
+// 		err = MYSQL.Joins("JOIN dorms on dorms.dorm_number=beds.dorm_refer").
+// 			Where("dorms.dorm_number=? and dorms.gender=1 and size=?", dorms[i], cap).
+// 			Find(&beds).
+// 			Count(&beds).
+// 			Error
+// 		dormnums = append(dormnums, DormNum{
+// 			DormNumber: dorms[i].DormNumber,
+// 			Num:        c,
+// 		})
+// 	}
+// 	return dormnums, err
+// }
+
+// // FindAllWDorm 返回女生宿舍剩余床位信息
+// func FindAllWDorm(cap int) ([]DormNum, error) {
+// 	var dorms []Dorm
+// 	var dormnums []DormNum
+// 	var beds []Bed
+// 	var c uint8
+// 	err := MYSQL.Find(&dorms).Error
+// 	if err != nil {
+// 		return dormnums, err
+// 	}
+// 	for i := 0; i < len(dorms); i++ {
+// 		err = MYSQL.Joins("JOIN dorms on dorms.dorm_number=beds.dorm_refer").
+// 			Where("dorms.dorm_number=? and dorms.gender=0", dorms[i], cap).
+// 			Find(&beds).
+// 			Count(&beds).
+// 			Error
+// 		dormnums = append(dormnums, DormNum{
+// 			DormNumber: dorms[i].DormNumber,
+// 			Num:        c,
+// 		})
+// 	}
+// 	return dormnums, err
+// }
+
+func pushDorm(info PushInfo) error {
+	var dorm Dorm
+	dorm.DormNumber = info.BedNumber[:7]
+	err := MYSQL.Model(&dorm).Update("un_use_size", "un_use_size-1").Error
+	return err
 }

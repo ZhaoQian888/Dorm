@@ -33,3 +33,23 @@ func MysqlInit(connstring string) {
 	migration()
 
 }
+
+// PushInfo mysql信息
+type PushInfo struct {
+	BedNumber string
+	StuNumber uint64
+}
+
+// PushMysql 缓冲数据到mysql
+func PushMysql(info []PushInfo) error {
+	var err error
+	for i := 0; i < len(info); i++ {
+		if info[i].StuNumber <= 1 {
+			continue
+		}
+		err = pushBed(info[i])
+		err = pushDorm(info[i])
+		err = pushSB(info[i])
+	}
+	return err
+}

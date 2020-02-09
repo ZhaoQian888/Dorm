@@ -1,8 +1,10 @@
 package main
 
-import "Dorm/conf"
+import (
+	"Dorm/conf"
+)
 
 func main() {
-	router := conf.Start()
+	router := conf.Init()
 	router.Run()
 }
