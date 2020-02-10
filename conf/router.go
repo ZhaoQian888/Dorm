@@ -10,5 +10,6 @@ func routerInit() *gin.Engine {
 	router := gin.Default()
 	router.GET("/ping", api.Ping)
 	router.GET("/dorm/remain", api.RemainDorm)
+	router.POST("/distr", api.DistriDorm)
 	return router
 }

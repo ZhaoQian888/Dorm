@@ -19,25 +19,30 @@ func Hit(infos DormRequir) (string, error) {
 	c := REDISPOOL.Get()
 	var di int
 	var gi int
-	di = rand.Int() % 5
-	gi = rand.Int() % 3
+	var res string = ""
+	di = rand.Int() % len(dmap)
+	gi = rand.Int() % len(smap)
 	if infos.Depart != "" {
 		di = dmap[infos.Depart]
 	}
 	if infos.Size != 0 {
 		gi = smap[infos.Size]
 	}
-	for i := di; i < di+5; i++ {
-		for j := gi; j < gi+3; j++ {
-			key := "D_" + depart[i%5] + "G_" + strconv.Itoa(int(infos.Gender)) + "S_" + strconv.Itoa(int(size[j%3]))
+	for i := di; i < di+len(dmap); i++ {
+		for j := gi; j < gi+len(smap); j++ {
+			key := "D_" + depart[i%len(dmap)] + "G_" + strconv.Itoa(int(infos.Gender)) + "S_" + strconv.Itoa(int(size[j%len(smap)]))
 			re, err := redis.Int(c.Do("decr", key))
 			if err != nil {
-				return "", err
+
 			}
 			if re >= 0 {
-				return redis.String(c.Do("get", re))
+				ress, err := redis.String(c.Do("get", key+strconv.Itoa(re)))
+				res = ress
+				if err == nil {
+					break
+				}
 			}
 		}
 	}
-	return "", nil
+	return res, nil
 }
