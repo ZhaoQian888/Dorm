@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -77,6 +76,4 @@ func tryBedModel() {
 			}
 		}
 	}
-	i, _ := GetDepartBedNumber(13)
-	fmt.Print(i)
 }

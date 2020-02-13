@@ -21,11 +21,41 @@ var smap = map[uint8]int{
 	size[0]: 0,
 	size[1]: 1,
 	size[2]: 2,
+	size[3]: 3,
 }
 
 // CacheInit 将数据库中的数据缓存到redis中
 func cacheInit() error {
 	bedCache()
+	departCache()
+	return nil
+}
+
+// departCache
+func departCache() error {
+	c := REDISPOOL.Get()
+	for i := 0; i < len(depart); i++ {
+		a, err := strconv.Atoi(depart[i][:(len(depart[i]) - 1)])
+		if err != nil {
+			return err
+		}
+		num, err := model.GetDepartBedNumber(a, 1)
+		if err != nil {
+			return err
+		}
+		_, err = c.Do("set", depart[i]+"M", num)
+		if err != nil {
+			return err
+		}
+		num, err = model.GetDepartBedNumber(a, 0)
+		if err != nil {
+			return err
+		}
+		_, err = c.Do("set", depart[i]+"W", num)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -40,6 +70,7 @@ func bedCache() {
 					c.Do("set", "D_"+depart[i]+"G_"+strconv.Itoa(int(gender[j]))+"S_"+strconv.Itoa(int(size[n]))+strconv.Itoa(m), beds[m].BedNumber)
 					c.Do("set", beds[m].BedNumber, 1)
 					c.Do("sadd", "beds", beds[m].BedNumber)
+					c.Do("set", "DGS"+beds[m].BedNumber, "D_"+depart[i]+"G_"+strconv.Itoa(int(gender[j]))+"S_"+strconv.Itoa(int(size[n]))+strconv.Itoa(m))
 				}
 			}
 		}

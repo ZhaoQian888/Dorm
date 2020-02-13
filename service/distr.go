@@ -3,6 +3,8 @@ package service
 import (
 	"Dorm/cache"
 	"errors"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 // DistrDormService 分配宿舍服务
@@ -15,6 +17,11 @@ type DistrDormService struct {
 
 // DistrDorm 完成分配宿舍
 func (d *DistrDormService) DistrDorm() (string, error) {
+	c := cache.REDISPOOL.Get()
+	a, _ := redis.String(c.Do("get", d.StuNumber))
+	if a != "" {
+		return a, errors.New("不可重复选宿舍")
+	}
 	var info = cache.DormRequir{
 		Depart: d.Depart,
 		Gender: uint8(d.Gender),
