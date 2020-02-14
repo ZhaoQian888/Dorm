@@ -27,7 +27,7 @@ func routerInit() *gin.Engine {
 	router.POST("/wx/bind/info", api.BindInfo)
 
 	router.GET("/wx/admin/push", api.AdminPush)
-
+	router.GET("wx/wthbind/", api.WthBind)
 	router.Use(middleware.NeedStu())
 	router.POST("/wx/distr", api.DistriDorm)
 	router.GET("wx/wtcho", api.WtChoose)

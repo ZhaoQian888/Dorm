@@ -3,7 +3,7 @@ package model
 // Unit 是一个单元
 type Unit struct {
 	// 单元号
-	UID string `gorm:"primary_key"`
+	UID string `gorm:"primary_key;type:varchar(100)"`
 	// 宿舍楼
 	Depart      Depart `gorm:"foreignkey:DepartRefer"`
 	DepartRefer uint8

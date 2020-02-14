@@ -3,7 +3,6 @@ package service
 import (
 	"Dorm/model"
 	"Dorm/serializer"
-	"fmt"
 )
 
 // BindInfo 绑定信息
@@ -22,7 +21,7 @@ func (b *BindInfo) Binding(id string) serializer.BaseResponse {
 	for i := 0; i < len(b.Region); i++ {
 		r = r + b.Region[i]
 	}
-	fmt.Print(b)
+
 	err := model.SetStudent(b.StuNumber, b.StuName, id, b.Tel, b.Gender, r, b.Cla)
 	if err != nil {
 		return serializer.BaseResponse{

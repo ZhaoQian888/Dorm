@@ -3,10 +3,10 @@ package model
 // Dorm 宿舍
 type Dorm struct {
 	// 宿舍号  13号宿舍楼E3414宿舍：13E3414
-	DormNumber string `gorm:"primary_key"`
+	DormNumber string `gorm:"primary_key;type:varchar(100)"`
 	// 单元
-	Unit      Unit `gorm:"foreignkey:UnitRefer"`
-	UnitRefer string
+	Unit      Unit   `gorm:"foreignkey:UnitRefer;type:varchar(100)"`
+	UnitRefer string `gorm:"type:varchar(100)"`
 	// 楼层
 	Floor uint8
 	// 宿舍床位的个数
